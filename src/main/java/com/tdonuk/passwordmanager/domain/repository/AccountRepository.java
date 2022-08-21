@@ -5,11 +5,10 @@ import com.tdonuk.passwordmanager.domain.entity.UserAccount;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public interface AccountRepository <T extends UserAccount> {
-    T save(T entity);
-
-    List<T> saveAll(List<T> entities);
+    T save(T entity) throws ExecutionException, InterruptedException;
 
     List<T> findByField(String field, Object value);
 
@@ -22,4 +21,6 @@ public interface AccountRepository <T extends UserAccount> {
     List<T> findByName(String accountName);
 
     List<T> findByPhoneNumber();
+
+    T findById(String id) throws ExecutionException, InterruptedException;
 }
