@@ -90,7 +90,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         SessionContext.setAttr(LOGGED_USER_USERNAME, userDetails.getUsername());
 
         userDetails.getUser().setPassword("[PROTECTED]");
-        userDetails.getUser().setLastLogin(new Date());
 
         new ObjectMapper().writeValue(response.getOutputStream(), userDetails.getUser());
     }
