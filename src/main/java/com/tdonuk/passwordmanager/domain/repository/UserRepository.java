@@ -18,9 +18,5 @@ public interface UserRepository {
 
     List<UserEntity> findByField(String field, Object value) throws ExecutionException, InterruptedException;
 
-    List<UserEntity> findByName(Name name) throws ExecutionException, InterruptedException;
-
-    UserEntity findByEmail(String email) throws ExecutionException, InterruptedException;
-
     UserEntity findById(String id) throws ExecutionException, InterruptedException;
 }

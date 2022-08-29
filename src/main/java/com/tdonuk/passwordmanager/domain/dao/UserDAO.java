@@ -32,10 +32,9 @@ public class UserDAO implements UserRepository {
         CollectionReference users = firestore.collection(USERS);
 
         entity.setPassword(CryptUtils.encode(entity.getPassword()));
+        entity.setId(entity.getUsername()); // we are using username as id
 
-        log.info("Starting save user");
-
-        entity.setId(entity.getUsername());
+        log.info("Starting save user with username: " + entity.getUsername());
 
         DocumentReference ref = users.document(entity.getId());
 
@@ -91,28 +90,6 @@ public class UserDAO implements UserRepository {
         List<UserEntity> result = users.whereEqualTo(field, value).get().get().toObjects(UserEntity.class);
 
         return result;
-    }
-
-    @Override
-    public List<UserEntity> findByName(Name name) throws ExecutionException, InterruptedException {
-        CollectionReference users = firestore.collection(USERS);
-
-        log.info("Starting find user by name: " + name.toString());
-
-        List<UserEntity> result = users.whereEqualTo("name", name).get().get().toObjects(UserEntity.class);
-
-        return result;
-    }
-
-    @Override
-    public UserEntity findByEmail(String email) throws ExecutionException, InterruptedException {
-        CollectionReference users = firestore.collection(USERS);
-
-        log.info("Starting find user by email: " + email);
-
-        DocumentReference ref = users.document(email);
-
-        return Optional.of(ref.get().get().toObject(UserEntity.class)).orElse(null);
     }
 
     @Override

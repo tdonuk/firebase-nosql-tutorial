@@ -89,7 +89,7 @@ public class UserController {
             UserDTO user = SessionContext.loggedUser();
             if(Objects.isNull(user)) {
                 if(StringUtils.isNotBlank(SessionContext.loggedUsername())) {
-                    user = userService.login(SessionContext.loggedUsername());
+                    user = userService.findById(SessionContext.loggedUsername());
                 }
                 else throw new Exception("Please login to continue");
             }

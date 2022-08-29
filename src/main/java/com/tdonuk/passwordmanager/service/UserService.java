@@ -65,11 +65,11 @@ public class UserService {
     }
 
     public List<UserDTO> findByName(Name name) throws ExecutionException, InterruptedException {
-        return toDto(userRepository.findByName(name));
+        return findByField("name", name);
     }
 
     public UserDTO findByEmail(String email) throws ExecutionException, InterruptedException {
-        return toDto(userRepository.findByEmail(email));
+        return findByField("email", email).get(0);
     }
 
     public UserDTO findById(String id) throws ExecutionException, InterruptedException {
