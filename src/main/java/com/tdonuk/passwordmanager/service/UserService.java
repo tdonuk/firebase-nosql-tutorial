@@ -4,13 +4,18 @@ import com.tdonuk.passwordmanager.domain.Name;
 import com.tdonuk.passwordmanager.domain.dto.UserDTO;
 import com.tdonuk.passwordmanager.domain.entity.UserEntity;
 import com.tdonuk.passwordmanager.domain.repository.UserRepository;
+import com.tdonuk.passwordmanager.util.SessionContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
+
+import static com.tdonuk.passwordmanager.domain.ContextHolderParams.LOGGED_USER_USERNAME;
 
 @Service
 public class UserService {
@@ -43,8 +48,12 @@ public class UserService {
         return dtos;
     }
 
-    public UserDTO save(UserDTO dto) throws ExecutionException, InterruptedException {
+    public UserDTO save(UserDTO dto) throws Exception {
         return toDto(userRepository.save(toEntity(dto)));
+    }
+
+    public UserDTO update(Map<String, Object> newFields) throws Exception {
+        return toDto(userRepository.update(newFields));
     }
 
     public List<UserDTO> saveAll(List<UserDTO> dtos) {
@@ -65,5 +74,10 @@ public class UserService {
 
     public UserDTO findById(String id) throws ExecutionException, InterruptedException {
         return toDto(userRepository.findById(id));
+    }
+
+    public UserDTO login(String username) throws Exception {
+        SessionContext.setAttr(LOGGED_USER_USERNAME, username);
+        return update(Map.of("lastLogin", new Date()));
     }
 }

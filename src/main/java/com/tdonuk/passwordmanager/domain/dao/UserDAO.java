@@ -1,21 +1,20 @@
 package com.tdonuk.passwordmanager.domain.dao;
 
-import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import com.tdonuk.passwordmanager.domain.Name;
 import com.tdonuk.passwordmanager.domain.entity.UserEntity;
 import com.tdonuk.passwordmanager.domain.repository.UserRepository;
+import com.tdonuk.passwordmanager.util.CryptUtils;
+import com.tdonuk.passwordmanager.util.SessionContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
+import static com.tdonuk.passwordmanager.domain.ContextHolderParams.LOGGED_USER;
 import static com.tdonuk.passwordmanager.domain.FirestoreCollections.USERS;
 
 @Slf4j
@@ -29,26 +28,53 @@ public class UserDAO implements UserRepository {
     }
 
     @Override
-    public UserEntity save(UserEntity entity) throws ExecutionException, InterruptedException {
+    public UserEntity save(UserEntity entity) throws Exception {
         CollectionReference users = firestore.collection(USERS);
+
+        entity.setPassword(CryptUtils.encode(entity.getPassword()));
 
         log.info("Starting save user");
 
-        DocumentReference ref = users.document(entity.getEmail());
+        entity.setId(entity.getUsername());
+
+        DocumentReference ref = users.document(entity.getId());
 
         if(ref.get().get().exists()) {
-            log.error("User already exists: " + entity.getEmail());
+            log.error(String.format("A user found with given username [%s]", entity.getUsername()));
+            throw new Exception("User already exists with given ID. To update properties of this user, login first and then send a PUT request with fields to update");
         } else {
-            log.info("Nice.");
+            log.info(String.format("User does not exist with given username [%s], trying to create..", entity.getUsername()));
 
-            entity.setId(ref.getId());
+            entity.setId(ref.getId()); // we are using username as ID
+            entity.setCreationDate(new Date());
 
-            // save the entity and its collections seperately
             WriteResult result = ref.set(entity).get();
 
-            log.info("New user["+entity.getEmail()+"] Created at " + result.getUpdateTime());
+            log.info("New user with username ["+entity.getUsername()+"] is created. Create time: " + result.getUpdateTime());
         }
         return entity;
+    }
+
+    @Override
+    public UserEntity update(Map<String, Object> newFields) throws Exception {
+        CollectionReference users = firestore.collection(USERS);
+        DocumentReference userRef = users.document(SessionContext.loggedUsername());
+
+        log.info(String.format("Updating user [%s]...", SessionContext.loggedUsername()));
+        try {
+            WriteResult result = userRef.update(newFields).get();
+
+            log.info(String.format("User [%s] is updated at %s", SessionContext.loggedUsername(), result.getUpdateTime()));
+
+            UserEntity updatedUser = findById(SessionContext.loggedUsername());
+
+            SessionContext.setAttr(LOGGED_USER, updatedUser);
+
+            return updatedUser;
+
+        } catch(Exception e) {
+            throw new Exception("An unknown error happened. Please re-login and try again");
+        }
     }
 
     @Override

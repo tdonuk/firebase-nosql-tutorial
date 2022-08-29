@@ -41,4 +41,8 @@ public class BankAccountService extends AccountService<BankAccountDTO>{
         entities.forEach(e -> dtos.add(toDto(e)));
         return dtos;
     }
+
+    public BankAccountDTO findByIban(String iban) throws Exception {
+        return toDto(bankAccountRepository.findByIBAN(iban));
+    }
 }
