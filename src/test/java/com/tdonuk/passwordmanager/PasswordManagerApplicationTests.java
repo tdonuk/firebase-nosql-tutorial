@@ -1,41 +1,67 @@
 package com.tdonuk.passwordmanager;
 
 import com.google.api.core.ApiFuture;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.*;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
+import com.tdonuk.passwordmanager.domain.AccountType;
+import com.tdonuk.passwordmanager.domain.Name;
+import com.tdonuk.passwordmanager.domain.dao.BankAccountDAO;
+import com.tdonuk.passwordmanager.domain.dao.UserDAO;
+import com.tdonuk.passwordmanager.domain.dto.UserDTO;
+import com.tdonuk.passwordmanager.domain.entity.BankAccount;
+import com.tdonuk.passwordmanager.domain.entity.UserAccount;
+import com.tdonuk.passwordmanager.security.domain.CustomUserDetails;
+import com.tdonuk.passwordmanager.service.UserService;
+import com.tdonuk.passwordmanager.util.FirebaseUtils;
+import com.tdonuk.passwordmanager.util.SessionContext;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.Base64;
+import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
+
+import static com.tdonuk.passwordmanager.domain.ContextHolderParams.LOGGED_USER;
+import static com.tdonuk.passwordmanager.domain.ContextHolderParams.LOGGED_USER_USERNAME;
+import static com.tdonuk.passwordmanager.domain.FirestoreCollections.ACCOUNTS;
+import static com.tdonuk.passwordmanager.domain.FirestoreCollections.USERS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PasswordManagerApplicationTests {
-    ClassLoader cl;
     Firestore dbFirestore;
+
+    static {
+        try {
+            FirebaseUtils.initApp();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Autowired
+    private BankAccountDAO bankAccountDAO;
+    @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
+    private UserService userService;
+
+    private BCryptPasswordEncoder encoder;
 
     @BeforeAll
     void contextLoads() throws IOException {
-        cl = PasswordManagerApplication.class.getClassLoader();
-
-        InputStream serviceAccountStream = cl.getResourceAsStream("password-manager-22b1a-firebase-adminsdk-j6cub-30e80c2ebb.json");
-
-        FirebaseOptions options = new FirebaseOptions.Builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccountStream))
-                .build();
-
-        FirebaseApp.initializeApp(options);
-
         dbFirestore = FirestoreClient.getFirestore();
+        encoder = new BCryptPasswordEncoder();
     }
 
     @Test
@@ -63,7 +89,59 @@ class PasswordManagerApplicationTests {
         System.out.println(future.get());
     }
 
+    @Test
+    void canSaveEmbeddedCollection() throws Exception {
+        UserDTO user = new UserDTO();
+        user.setName(new Name("taha", "donuk"));
+        user.setUsername("taha");
+        user.setEmail("a.a");
+        user.setPassword(encoder.encode("1234"));
+        user.setPhoneNumber("4321");
 
+        userService.save(user);
+
+        SessionContext.setAttr(LOGGED_USER, new CustomUserDetails(user));
+        SessionContext.setAttr(LOGGED_USER_USERNAME, user.getUsername());
+
+
+        BankAccount account = new BankAccount();
+        account.setIban("123123");
+        account.setEmail("a.a");
+        account.setBankName("iskbank");
+        account.setMobileAppPassword("1234");
+        account.setCreationDate(new Date());
+        account.setOwnerId(user.getUsername());
+        account.setAccountNumber("4444");
+        account.setType(AccountType.BANK);
+        account.setId(account.getIban());
+
+        bankAccountDAO.save(account);
+
+        UserAccount acc = bankAccountDAO.findById(account.getId());
+        System.out.println("found: " + acc.toString());
+    }
+
+    @Test
+    void canEncodeAndDecode() {
+        String raw = "abc123";
+
+        String encoded = Base64.getEncoder().encodeToString(raw.getBytes());
+        String decoded = new String(Base64.getDecoder().decode(encoded));
+
+        System.out.println(encoded);
+        System.out.println(decoded);
+
+        assertEquals(raw, decoded);
+    }
+
+    @Test
+    void givenWrongId_canNotUpdate() throws Exception {
+        CollectionReference accounts = dbFirestore.collection(USERS).document("deneme").collection(ACCOUNTS);
+
+        DocumentReference ref = accounts.document("ads");
+
+        ref.update(Map.of("name", "new")).get().getUpdateTime();
+    }
 }
 
 @Data
@@ -72,5 +150,4 @@ class Crud {
     private String documentId;
     private String name;
     private String profession;
-
 }
