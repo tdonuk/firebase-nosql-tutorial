@@ -8,6 +8,7 @@ import com.tdonuk.passwordmanager.domain.entity.UserAccount;
 import com.tdonuk.passwordmanager.domain.repository.AccountRepository;
 import com.tdonuk.passwordmanager.domain.repository.BankAccountRepository;
 import com.tdonuk.passwordmanager.domain.repository.PlainAccountRepository;
+import com.tdonuk.passwordmanager.util.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
@@ -54,14 +55,15 @@ public abstract class AccountService <T extends UserAccountDTO> {
         return findByField("creationDate", startDate, QueryType.AFTER);
     }
 
-    public List<T> findAllByOwner() throws Exception {
-        return toDto(getRepository().findAllByOwner());
+    public List<T> findAllByOwner(String owner) throws Exception {
+        return findByField("owner", owner, QueryType.EQUALS);
     }
 
     public List<T> findByName(String accountName) throws Exception{
         return findByField("name", accountName, QueryType.STARTS_WITH);
     }
 
+    // do not user findByField("id") for querying by ID, use that way instead.
     public T findById(String id) throws Exception {
         return toDto(getRepository().findById(id));
     }

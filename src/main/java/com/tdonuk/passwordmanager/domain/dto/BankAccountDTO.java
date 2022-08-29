@@ -1,5 +1,6 @@
 package com.tdonuk.passwordmanager.domain.dto;
 
+import com.tdonuk.passwordmanager.domain.Card;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,5 @@ public class BankAccountDTO extends UserAccountDTO {
     private String mobileAppPassword;
     private String iban;
     private String accountNumber;
-
-    private Set<DebitCardDTO> cards;
+    private Set<Card> cards;
 }

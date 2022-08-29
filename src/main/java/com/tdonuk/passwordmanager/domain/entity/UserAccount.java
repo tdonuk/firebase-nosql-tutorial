@@ -12,14 +12,10 @@ import java.util.Date;
 @NoArgsConstructor
 public class UserAccount {
     protected String id;
-
-    protected AccountType type;
-
+    protected AccountType accountType;
     protected String name;
     protected String email;
     protected Date creationDate;
-
     protected String phoneNumber;
-
-    protected String ownerId;
+    protected String owner;
 }

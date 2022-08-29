@@ -12,7 +12,6 @@ import java.util.Date;
 @AllArgsConstructor
 public class UserDTO {
     private String id;
-
     private Name name;
     private String username;
     private String password;

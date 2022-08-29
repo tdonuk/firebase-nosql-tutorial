@@ -18,15 +18,6 @@ public abstract class UserAccountController<T extends UserAccountDTO> {
         this.accountService = accountService;
     }
 
-    @GetMapping("")
-    public ResponseEntity<?> findAll() {
-        try {
-            return ResponseEntity.ok(accountService.findAllByOwner());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @PostMapping("")
     public ResponseEntity<?> save(@RequestBody T account) {
         try {

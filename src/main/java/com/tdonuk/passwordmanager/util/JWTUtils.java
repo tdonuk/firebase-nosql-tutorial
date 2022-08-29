@@ -42,8 +42,8 @@ public final class JWTUtils {
         try {
             decode(tokenHeader);
         } catch(TokenExpiredException e) {
-            log.info("An error has occurred while authenticating the user.");
-            throw new TokenExpiredException("Maximum session time is expired.", decodedJWT.getExpiresAtAsInstant());
+            log.info("An error has occurred while authenticating the user: " + e.getMessage());
+            throw new Exception("Maximum session time is expired");
         } catch(JWTDecodeException e) {
             throw new JWTDecodeException("An unknown error has happened: " + e. getMessage());
         } catch(Exception e) {

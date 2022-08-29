@@ -37,7 +37,7 @@ public abstract class AccountDAO <T extends UserAccount> implements AccountRepos
         DocumentReference createdDocument = accounts.document();
 
         entity.setId(createdDocument.getId());
-        entity.setOwnerId(SessionContext.loggedUsername());
+        entity.setOwner(SessionContext.loggedUsername());
         entity.setCreationDate(new Date());
 
         createdDocument.set(entity);

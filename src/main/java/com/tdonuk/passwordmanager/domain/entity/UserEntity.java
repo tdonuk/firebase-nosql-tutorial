@@ -12,7 +12,6 @@ import java.util.Date;
 @AllArgsConstructor
 public class UserEntity {
     private String id;
-
     private Name name;
     private String username;
     private String password;

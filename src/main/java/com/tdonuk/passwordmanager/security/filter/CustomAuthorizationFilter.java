@@ -1,5 +1,6 @@
 package com.tdonuk.passwordmanager.security.filter;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tdonuk.passwordmanager.util.JWTUtils;
 import com.tdonuk.passwordmanager.util.SessionContext;
