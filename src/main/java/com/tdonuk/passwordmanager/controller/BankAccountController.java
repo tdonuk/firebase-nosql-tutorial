@@ -13,7 +13,7 @@ public class BankAccountController extends UserAccountController<BankAccountDTO>
         super(accountService);
     }
 
-    @GetMapping("/{iban}")
+    @GetMapping("/i/{iban}")
     public ResponseEntity<?> findByIBAN(@PathVariable String iban) {
         try {
             return ResponseEntity.ok(((BankAccountService) accountService).findByIban(iban));
