@@ -30,7 +30,7 @@ public abstract class AccountDAO <T extends UserAccount> implements AccountRepos
 
     @Override
     public T save(T entity) throws Exception {
-        CollectionReference accounts = firestore.collection(USERS).document(SessionContext.loggedUsername()).collection(ACCOUNTS);
+        CollectionReference accounts = firestore.collection(USERS).document(SessionContext.loggedUsername()).collection(getCollectionName());
 
         log.info("creating account..");
 
@@ -49,7 +49,7 @@ public abstract class AccountDAO <T extends UserAccount> implements AccountRepos
 
     @Override
     public T update(String id, Map<String, Object> fields) throws Exception {
-        CollectionReference accounts = firestore.collection(USERS).document(SessionContext.loggedUsername()).collection(ACCOUNTS);
+        CollectionReference accounts = firestore.collection(USERS).document(SessionContext.loggedUsername()).collection(getCollectionName());
 
         log.info("updating account..");
 
@@ -64,7 +64,7 @@ public abstract class AccountDAO <T extends UserAccount> implements AccountRepos
 
     @Override
     public T findById(String id) throws Exception {
-        CollectionReference accounts = firestore.collection(USERS).document(SessionContext.loggedUsername()).collection(ACCOUNTS);
+        CollectionReference accounts = firestore.collection(USERS).document(SessionContext.loggedUsername()).collection(getCollectionName());
 
         DocumentReference ref = accounts.document(id);
 
@@ -82,7 +82,7 @@ public abstract class AccountDAO <T extends UserAccount> implements AccountRepos
     public List<T> findByField(String field, Object value, QueryType type) throws Exception {
         log.info(String.format("findByField started to working with params [field: %s, value: %s, type: %s]", field, value.toString(), type.name()));
 
-        CollectionReference accounts = firestore.collection(USERS).document(SessionContext.loggedUsername()).collection(ACCOUNTS);
+        CollectionReference accounts = firestore.collection(USERS).document(SessionContext.loggedUsername()).collection(getCollectionName());
 
         switch(type) {
             case AFTER:
@@ -102,12 +102,4 @@ public abstract class AccountDAO <T extends UserAccount> implements AccountRepos
         }
     }
 
-    @Override
-    public List<T> findAllByOwner() throws Exception {
-        CollectionReference accounts = firestore.collection(USERS).document((SessionContext.loggedUsername())).collection(ACCOUNTS);
-
-        log.info("findAllByOwner started working..");
-
-        return accounts.whereEqualTo("ownerId", SessionContext.loggedUsername()).get().get().toObjects(getClassType());
-    }
 }

@@ -12,7 +12,6 @@ import java.util.Date;
 @NoArgsConstructor
 public class UserAccountDTO {
     protected String id;
-    protected AccountType accountType;
     protected String name;
     protected String email;
     protected Date creationDate;

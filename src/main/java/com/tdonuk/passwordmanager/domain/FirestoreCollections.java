@@ -12,5 +12,4 @@ public final class FirestoreCollections {
     public static final String ACCOUNTS = "accounts";
     public static final String BANK_ACCOUNTS = "bank_accounts";
     public static final String PLAIN_ACCOUNTS = "plain_accounts";
-    public static final String DEBIT_CARDS = "debit_cards";
 }

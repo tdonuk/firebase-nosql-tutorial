@@ -2,28 +2,22 @@ package com.tdonuk.passwordmanager.service;
 
 import com.tdonuk.passwordmanager.domain.AccountType;
 import com.tdonuk.passwordmanager.domain.QueryType;
-import com.tdonuk.passwordmanager.domain.dao.GenericAccountDAO;
 import com.tdonuk.passwordmanager.domain.dto.UserAccountDTO;
 import com.tdonuk.passwordmanager.domain.entity.UserAccount;
 import com.tdonuk.passwordmanager.domain.repository.AccountRepository;
 import com.tdonuk.passwordmanager.domain.repository.BankAccountRepository;
 import com.tdonuk.passwordmanager.domain.repository.PlainAccountRepository;
-import com.tdonuk.passwordmanager.util.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public abstract class AccountService <T extends UserAccountDTO> {
     @Autowired
     protected BankAccountRepository bankAccountRepository;
     @Autowired
     protected PlainAccountRepository plainAccountRepository;
-
-    @Autowired
-    protected GenericAccountDAO genericAccountDAO;
 
     protected abstract T toDto(UserAccount entity);
     protected abstract List<T> toDto(List<UserAccount> entities);
