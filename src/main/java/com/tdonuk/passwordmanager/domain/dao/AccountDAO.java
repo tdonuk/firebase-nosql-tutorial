@@ -105,6 +105,9 @@ public abstract class AccountDAO <T extends UserAccount> implements AccountRepos
     @Override
     public List<T> findAllByOwner() throws Exception {
         CollectionReference accounts = firestore.collection(USERS).document((SessionContext.loggedUsername())).collection(ACCOUNTS);
-        return accounts.whereEqualTo("owner", SessionContext.loggedUsername()).get().get().toObjects(getClassType());
+
+        log.info("findAllByOwner started working..");
+
+        return accounts.whereEqualTo("ownerId", SessionContext.loggedUsername()).get().get().toObjects(getClassType());
     }
 }

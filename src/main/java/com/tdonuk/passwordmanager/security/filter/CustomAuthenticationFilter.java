@@ -23,9 +23,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.tdonuk.passwordmanager.domain.ContextHolderParams.LOGGED_USER;
+import static com.tdonuk.passwordmanager.domain.ContextHolderParams.LOGGED_USER_USERNAME;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -67,6 +69,12 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
 
+        if(Objects.isNull(userDetails)) {
+            response.setStatus(400);
+            new ObjectMapper().writeValue(response.getOutputStream(), "An unknown error is happened while logging in.. please re-login in order to continue");
+            return;
+        };
+
         logger.info(String.format("creating tokens for authenticated user[%s]...", userDetails.getUsername()));
 
         String accessToken = JWTUtils.createDefault(userDetails.getUsername(), List.of("APP_USER"));
@@ -78,7 +86,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         response.setHeader("refreshToken", refreshToken);
         response.setHeader("Content-Type", "application/json; charset=UTF-8");
 
-        SessionContext.setAttr(LOGGED_USER, userDetails);
+        SessionContext.setAttr(LOGGED_USER, userDetails.getUser());
+        SessionContext.setAttr(LOGGED_USER_USERNAME, userDetails.getUsername());
 
         userDetails.getUser().setPassword("[PROTECTED]");
         userDetails.getUser().setLastLogin(new Date());

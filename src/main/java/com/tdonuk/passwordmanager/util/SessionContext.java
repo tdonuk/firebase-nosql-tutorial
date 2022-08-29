@@ -1,5 +1,6 @@
 package com.tdonuk.passwordmanager.util;
 
+import com.tdonuk.passwordmanager.domain.dto.UserDTO;
 import com.tdonuk.passwordmanager.security.domain.CustomUserDetails;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.tdonuk.passwordmanager.domain.ContextHolderParams.LOGGED_USER;
 import static com.tdonuk.passwordmanager.domain.ContextHolderParams.LOGGED_USER_USERNAME;
@@ -34,12 +36,8 @@ public final class SessionContext {
         return loggedUser;
     }
 
-    public static CustomUserDetails loggedUser() throws Exception {
-        CustomUserDetails loggedUser = (CustomUserDetails) getAttr(LOGGED_USER);
-
-        if(Objects.isNull(loggedUser)) {
-            throw new Exception("Please login to continue");
-        }
+    public static UserDTO loggedUser() throws Exception {
+        UserDTO loggedUser = (UserDTO) getAttr(LOGGED_USER);
 
         return loggedUser;
     }

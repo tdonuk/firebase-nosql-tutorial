@@ -45,11 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests().antMatchers("/api/user", "/api/login", "/test", "/api/user/me").permitAll()
                 .and()
                 .addFilter(authenticationFilter())
-                .addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling().accessDeniedHandler((request, response, exception) -> {
-                    response.setStatus(400);
-                    response.sendError(400, "iski");
-                });
+                .addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
     public CustomAuthenticationFilter authenticationFilter() throws Exception {

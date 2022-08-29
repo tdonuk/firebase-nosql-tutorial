@@ -11,6 +11,7 @@ import com.tdonuk.passwordmanager.util.JWTUtils;
 import com.tdonuk.passwordmanager.util.SessionContext;
 import com.tdonuk.passwordmanager.util.ValidationUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/user")
@@ -84,7 +86,14 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<?> getUser() {
         try {
-            return ResponseEntity.ok(SessionContext.loggedUser().getUser());
+            UserDTO user = SessionContext.loggedUser();
+            if(Objects.isNull(user)) {
+                if(StringUtils.isNotBlank(SessionContext.loggedUsername())) {
+                    user = userService.login(SessionContext.loggedUsername());
+                }
+                else throw new Exception("Please login to continue");
+            }
+            return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
