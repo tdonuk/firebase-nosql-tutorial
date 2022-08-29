@@ -9,9 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 
 @Controller
 @RequestMapping("/")
-public class BaseController {
+public class AppController {
     @GetMapping("test")
     public ResponseEntity<?> test(HttpServletRequest request) {
-        return ResponseEntity.ok("You have reached me. Your IP: " + request.getRemoteHost());
+        return ResponseEntity.ok("You have reached me. Your IP: " + request.getRemoteAddr());
     }
+
 }
