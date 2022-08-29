@@ -10,6 +10,11 @@ import java.util.HashMap;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SerializationUtils {
+    @Deprecated
+    /**
+     * Deprecated. Used when saving a user with collection fields (i.e. accounts). In this case, we are serializing only non-collection fields
+     * to prevent Json serialization chain like user -> account (has field 'user') -> user -> account -> user etc..
+     */
     public static HashMap<String, Object> toHashMapWithoutCollectionFields(UserEntity entity) throws IllegalAccessException {
         HashMap<String, Object> map = new HashMap<>();
 
