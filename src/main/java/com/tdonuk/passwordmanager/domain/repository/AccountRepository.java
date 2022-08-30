@@ -17,4 +17,6 @@ public interface AccountRepository <T extends UserAccount> {
     T findById(String id) throws Exception;
 
     List<T> findByField(String field, Object value, QueryType type) throws Exception;
+
+    void delete(String id) throws Exception;
 }

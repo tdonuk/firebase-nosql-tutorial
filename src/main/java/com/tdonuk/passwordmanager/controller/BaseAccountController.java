@@ -41,4 +41,14 @@ public abstract class BaseAccountController<T extends UserAccountDTO> {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable String id) {
+        try {
+            accountService.delete(id);
+            return ResponseEntity.ok("Account " + id + " deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }

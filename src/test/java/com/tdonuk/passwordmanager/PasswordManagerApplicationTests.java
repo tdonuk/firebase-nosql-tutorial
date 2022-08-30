@@ -31,8 +31,7 @@ import java.util.concurrent.ExecutionException;
 
 import static com.tdonuk.passwordmanager.domain.ContextHolderParams.LOGGED_USER;
 import static com.tdonuk.passwordmanager.domain.ContextHolderParams.LOGGED_USER_USERNAME;
-import static com.tdonuk.passwordmanager.domain.FirestoreCollections.ACCOUNTS;
-import static com.tdonuk.passwordmanager.domain.FirestoreCollections.USERS;
+import static com.tdonuk.passwordmanager.domain.FirestoreCollections.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
@@ -66,7 +65,7 @@ class PasswordManagerApplicationTests {
 
     @Test
     void canReadDocument() throws ExecutionException, InterruptedException, IOException {
-        CollectionReference col = dbFirestore.collection("users");
+        CollectionReference col = dbFirestore.collection("cruds");
 
 
         DocumentReference ref = col.add(new Crud("", "deneme", "test")).get();
@@ -110,9 +109,8 @@ class PasswordManagerApplicationTests {
         account.setBankName("iskbank");
         account.setMobileAppPassword("1234");
         account.setCreationDate(new Date());
-        account.setOwnerId(user.getUsername());
+        account.setOwner(user.getUsername());
         account.setAccountNumber("4444");
-        account.setType(AccountType.BANK);
         account.setId(account.getIban());
 
         bankAccountDAO.save(account);
@@ -135,8 +133,8 @@ class PasswordManagerApplicationTests {
     }
 
     @Test
-    void givenWrongId_canNotUpdate() throws Exception {
-        CollectionReference accounts = dbFirestore.collection(USERS).document("deneme").collection(ACCOUNTS);
+    void givenWrongId_canNotUpdate() throws Exception { // should fail, or simply add some assertions
+        CollectionReference accounts = dbFirestore.collection("cruds").document("deneme").collection(BANK_ACCOUNTS);
 
         DocumentReference ref = accounts.document("ads");
 

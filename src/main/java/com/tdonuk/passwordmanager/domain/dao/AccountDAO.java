@@ -102,4 +102,12 @@ public abstract class AccountDAO <T extends UserAccount> implements AccountRepos
         }
     }
 
+    @Override
+    public void delete(String id) throws Exception {
+        CollectionReference accounts = firestore.collection(USERS).document(SessionContext.loggedUsername()).collection(getCollectionName());
+
+        DocumentReference doc = accounts.document(id);
+
+        doc.delete();
+    }
 }
