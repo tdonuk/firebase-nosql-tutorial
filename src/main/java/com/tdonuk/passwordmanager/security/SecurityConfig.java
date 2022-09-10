@@ -3,7 +3,6 @@ package com.tdonuk.passwordmanager.security;
 import com.tdonuk.passwordmanager.security.domain.CustomUserDetailsService;
 import com.tdonuk.passwordmanager.security.filter.CustomAuthenticationFilter;
 import com.tdonuk.passwordmanager.security.filter.CustomAuthorizationFilter;
-import com.tdonuk.passwordmanager.security.util.PasswordEncoderImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +14,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -29,7 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
-    private final PasswordEncoder passwordEncoder = new PasswordEncoderImpl();
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -40,9 +38,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests().antMatchers("/**").authenticated()
-                .and()
-                .authorizeRequests().antMatchers("/api/user", "/api/login", "/test", "/api/user/me").permitAll()
+                .authorizeRequests()
+                .antMatchers("/api/user", "/api/login", "/test", "/api/user/me").permitAll()
+                .anyRequest().authenticated()
                 .and()
                 .addFilter(authenticationFilter())
                 .addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);

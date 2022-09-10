@@ -9,6 +9,7 @@ import com.tdonuk.passwordmanager.util.SessionContext;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,6 +29,9 @@ public abstract class AccountDAO <T extends UserAccount> implements AccountRepos
     protected abstract String getCollectionName();
     protected abstract Class<T> getClassType();
 
+    protected abstract void encodeEntity(T entity);
+    protected  abstract void decodeEntity(T entity);
+
     @Override
     public T save(T entity) throws Exception {
         CollectionReference accounts = firestore.collection(USERS).document(SessionContext.loggedUsername()).collection(getCollectionName());
@@ -40,9 +44,13 @@ public abstract class AccountDAO <T extends UserAccount> implements AccountRepos
         entity.setOwner(SessionContext.loggedUsername());
         entity.setCreationDate(new Date());
 
-        createdDocument.set(entity);
+        encodeEntity(entity);
 
-        log.info("account created successfully");
+        WriteResult result = createdDocument.set(entity).get();
+
+        log.info("account created successfully at " + result.getUpdateTime());
+
+        decodeEntity(entity);
 
         return entity;
     }
@@ -55,11 +63,15 @@ public abstract class AccountDAO <T extends UserAccount> implements AccountRepos
 
         DocumentReference ref = accounts.document(id);
 
-        ref.update(fields).get();
+        WriteResult result = ref.update(fields).get();
 
-        log.info(String.format("account[%s] is updated successfully", id));
+        log.info(String.format("account [%s] is updated successfully ad %s", id, result.getUpdateTime()));
 
-        return ref.get().get().toObject(getClassType());
+        T entity = ref.get().get().toObject(getClassType());
+
+        decodeEntity(entity);
+
+        return entity;
     }
 
     @Override
@@ -70,11 +82,16 @@ public abstract class AccountDAO <T extends UserAccount> implements AccountRepos
 
         DocumentSnapshot snapshot = ref.get().get();
 
-        log.info(String.format("Find by id: %s started working", id));
+        log.info(String.format("find by id: %s started working", id));
 
         if(snapshot.exists()) {
-            log.info(String.format("Account found with given id. Processing..."));
-            return snapshot.toObject(getClassType());
+            log.info(String.format("account found with given id. processing..."));
+
+            T entity = snapshot.toObject(getClassType());
+
+            decodeEntity(entity);
+
+            return entity;
         } else return null;
     }
 
@@ -84,22 +101,30 @@ public abstract class AccountDAO <T extends UserAccount> implements AccountRepos
 
         CollectionReference accounts = firestore.collection(USERS).document(SessionContext.loggedUsername()).collection(getCollectionName());
 
+        List<T> results = new ArrayList<>();
+
         switch(type) {
             case AFTER:
             case STARTS_WITH:
             case BIGGER_THAN:
-                return accounts.whereGreaterThanOrEqualTo(field, value).get().get().toObjects(getClassType());
+                results = accounts.whereGreaterThanOrEqualTo(field, value).get().get().toObjects(getClassType());
+                break;
             case BEFORE:
             case ENDS_WITH:
             case SMALLER_THAN:
-                return accounts.whereLessThanOrEqualTo(field, value).get().get().toObjects(getClassType());
+                results = accounts.whereLessThanOrEqualTo(field, value).get().get().toObjects(getClassType());
+                break;
             case CONTAINS:
+                // not supported yet
                 return new ArrayList<>();
             case EQUALS:
-                return accounts.whereEqualTo(field, value).get().get().toObjects(getClassType());
+                accounts.whereEqualTo(field, value).get().get().toObjects(getClassType());
+                break;
             default:
                 return new ArrayList<>();
         }
+        results.forEach(this::decodeEntity);
+        return results;
     }
 
     @Override
