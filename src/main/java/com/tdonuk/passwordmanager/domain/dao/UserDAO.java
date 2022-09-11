@@ -49,7 +49,7 @@ public class UserDAO implements UserRepository {
 
             WriteResult result = ref.set(entity).get();
 
-            log.info("new user with username ["+entity.getUsername()+"] is created at" + result.getUpdateTime());
+            log.info("new user with username ["+entity.getUsername()+"] is created at " + result.getUpdateTime());
         }
         return entity;
     }

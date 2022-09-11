@@ -21,7 +21,7 @@ public class AccountController extends BaseAccountController<PlainAccountDTO> {
     @GetMapping("")
     public ResponseEntity<?> findAll() {
         try {
-            return ResponseEntity.ok(accountService.findAllByOwner(SessionContext.loggedUsername()));
+            return ResponseEntity.ok(accountService.findAll());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

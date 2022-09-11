@@ -65,4 +65,8 @@ public abstract class AccountService <T extends UserAccountDTO> {
     public void delete(String id) throws Exception {
         getRepository().delete(id);
     }
+
+    public List<T> findAll() throws Exception {
+        return toDto(getRepository().findAll());
+    }
 }

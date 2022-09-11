@@ -1,5 +1,6 @@
 package com.tdonuk.passwordmanager.service;
 
+import com.tdonuk.passwordmanager.domain.Card;
 import com.tdonuk.passwordmanager.domain.dao.AccountDAO;
 import com.tdonuk.passwordmanager.domain.dao.BankAccountDAO;
 import com.tdonuk.passwordmanager.domain.dto.BankAccountDTO;
@@ -44,5 +45,9 @@ public class BankAccountService extends AccountService<BankAccountDTO>{
 
     public BankAccountDTO findByIban(String iban) throws Exception {
         return toDto(bankAccountRepository.findByIBAN(iban));
+    }
+
+    public void addCard(String id, Card card) throws Exception {
+        bankAccountRepository.addCard(id, card);
     }
 }

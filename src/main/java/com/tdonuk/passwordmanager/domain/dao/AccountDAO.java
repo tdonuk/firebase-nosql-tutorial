@@ -3,6 +3,7 @@ package com.tdonuk.passwordmanager.domain.dao;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import com.tdonuk.passwordmanager.domain.QueryType;
+import com.tdonuk.passwordmanager.domain.entity.BankAccount;
 import com.tdonuk.passwordmanager.domain.entity.UserAccount;
 import com.tdonuk.passwordmanager.domain.repository.AccountRepository;
 import com.tdonuk.passwordmanager.util.SessionContext;
@@ -53,6 +54,25 @@ public abstract class AccountDAO <T extends UserAccount> implements AccountRepos
         decodeEntity(entity);
 
         return entity;
+    }
+
+    @Override
+    public List<T> findAll() throws Exception {
+        log.info("find all started to working for user: " + SessionContext.loggedUsername() + " preparing request..");
+
+        CollectionReference accounts = firestore.collection(USERS).document(SessionContext.loggedUsername()).collection(getCollectionName());
+
+        List<T> results = accounts.orderBy("name").get().get().toObjects(getClassType());
+
+        log.info(results.size() + " " + (BANK_ACCOUNTS.equals(getCollectionName()) ? "Bank Accounts" : "Accounts") + " found for user ["+SessionContext.loggedUsername()+"]");
+
+        log.info("decoding results..");
+
+        results.forEach(result -> decodeEntity(result));
+
+        log.info("findAll successfully fetched user accounts. preparing response..");
+
+        return results;
     }
 
     @Override
