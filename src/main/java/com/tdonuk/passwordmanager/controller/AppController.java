@@ -18,4 +18,13 @@ public class AppController {
         return ResponseEntity.ok("You have reached me. Your IP: " + request.getRemoteAddr());
     }
 
+    @GetMapping(value = {"/", "/home", ""})
+    @ResponseBody
+    public ModelAndView index() {
+        ModelAndView mv = new ModelAndView("index");
+        mv.addObject("title", "YOU HAVE REACHED ME. OH YEA");
+
+        return mv;
+    }
+
 }

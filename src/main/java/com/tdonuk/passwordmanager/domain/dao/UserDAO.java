@@ -20,7 +20,7 @@ import static com.tdonuk.passwordmanager.domain.FirestoreCollections.USERS;
 @Repository
 public class UserDAO implements UserRepository {
     private Firestore firestore;
-    BCryptPasswordEncoder encoder;
+    protected BCryptPasswordEncoder encoder;
 
     @PostConstruct
     public void init() {
@@ -59,11 +59,11 @@ public class UserDAO implements UserRepository {
         CollectionReference users = firestore.collection(USERS);
         DocumentReference userRef = users.document(SessionContext.loggedUsername());
 
-        log.info(String.format("Updating user [%s]...", SessionContext.loggedUsername()));
+        log.info(String.format("updating user [%s]...", SessionContext.loggedUsername()));
         try {
             WriteResult result = userRef.update(newFields).get();
 
-            log.info(String.format("User [%s] is updated at %s", SessionContext.loggedUsername(), result.getUpdateTime()));
+            log.info(String.format("user [%s] is updated at %s", SessionContext.loggedUsername(), result.getUpdateTime()));
 
             UserEntity updatedUser = findById(SessionContext.loggedUsername());
 

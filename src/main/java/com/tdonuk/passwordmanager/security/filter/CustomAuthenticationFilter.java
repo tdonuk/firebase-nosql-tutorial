@@ -82,8 +82,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         logger.info(String.format("access and refresh tokens created for authenticated user[%s], preparing response..", userDetails.getUsername()));
 
-        response.setHeader("accessToken", accessToken);
-        response.setHeader("refreshToken", refreshToken);
+        response.setHeader("access_token", accessToken);
+        response.setHeader("refresh_token", refreshToken);
         response.setHeader("Content-Type", "application/json; charset=UTF-8");
 
         SessionContext.setAttr(LOGGED_USER, userDetails.getUser());

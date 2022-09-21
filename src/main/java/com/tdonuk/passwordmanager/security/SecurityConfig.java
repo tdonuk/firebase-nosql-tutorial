@@ -1,5 +1,6 @@
 package com.tdonuk.passwordmanager.security;
 
+import com.google.firebase.auth.hash.Bcrypt;
 import com.tdonuk.passwordmanager.security.domain.CustomUserDetailsService;
 import com.tdonuk.passwordmanager.security.filter.CustomAuthenticationFilter;
 import com.tdonuk.passwordmanager.security.filter.CustomAuthorizationFilter;
@@ -26,8 +27,10 @@ import java.util.Arrays;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private CustomUserDetailsService userDetailsService;
-
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @Autowired
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -39,7 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/user", "/api/login", "/test", "/api/user/me").permitAll()
+                .antMatchers("/api/user", "/api/login", "/test", "/signup", "/api/signup", "/login", "/", "/home").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(authenticationFilter())
@@ -59,7 +62,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+        auth
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder());
     }
 
     @Override
