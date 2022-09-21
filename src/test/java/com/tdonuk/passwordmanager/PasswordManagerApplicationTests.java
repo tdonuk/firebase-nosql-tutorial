@@ -37,87 +37,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PasswordManagerApplicationTests {
-    Firestore dbFirestore;
-
-    static {
-        try {
-            FirebaseUtils.initApp();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Autowired
-    private BankAccountDAO bankAccountDAO;
-    @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
-    private UserService userService;
-
-    private BCryptPasswordEncoder encoder;
-
-    @BeforeAll
-    void contextLoads() throws IOException {
-        dbFirestore = FirestoreClient.getFirestore();
-        encoder = new BCryptPasswordEncoder();
-    }
-
-    @Test
-    void canReadDocument() throws ExecutionException, InterruptedException, IOException {
-        CollectionReference col = dbFirestore.collection("cruds");
-
-
-        DocumentReference ref = col.add(new Crud("", "deneme", "test")).get();
-        ref.get().get().toObject(Crud.class);
-
-        DocumentReference readRef = col.document(ref.getId());
-
-        System.out.println(readRef.getId());
-    }
-
-    @Test
-    void canUseTransaction() throws ExecutionException, InterruptedException {
-        DocumentReference ref = dbFirestore.collection("cruds").document();
-        ApiFuture<String> future =
-                dbFirestore.runTransaction(tra -> {
-                    Transaction t = tra.set(ref, new Crud(ref.getId(),"deneme", "madenci"));
-                    tra.set(ref.collection("tags").document(ref.getId()), new Crud("asdsa", "dsadsa", "bsabsa"), SetOptions.merge());
-                    return "Başarılı";
-                });
-        System.out.println(future.get());
-    }
-
-    @Test
-    void canSaveEmbeddedCollection() throws Exception {
-        UserDTO user = new UserDTO();
-        user.setName(new Name("taha", "donuk"));
-        user.setUsername("taha");
-        user.setEmail("a.a");
-        user.setPassword(encoder.encode("1234"));
-        user.setPhoneNumber("4321");
-
-        userService.save(user);
-
-        SessionContext.setAttr(LOGGED_USER, new CustomUserDetails(user));
-        SessionContext.setAttr(LOGGED_USER_USERNAME, user.getUsername());
-
-
-        BankAccount account = new BankAccount();
-        account.setIban("123123");
-        account.setEmail("a.a");
-        account.setBankName("iskbank");
-        account.setMobileAppPassword("1234");
-        account.setCreationDate(new Date());
-        account.setOwner(user.getUsername());
-        account.setAccountNumber("4444");
-        account.setId(account.getIban());
-
-        bankAccountDAO.save(account);
-
-        UserAccount acc = bankAccountDAO.findById(account.getId());
-        System.out.println("found: " + acc.toString());
-    }
 
     @Test
     void canEncodeAndDecode() {
@@ -132,20 +51,4 @@ class PasswordManagerApplicationTests {
         assertEquals(raw, decoded);
     }
 
-    @Test
-    void givenWrongId_canNotUpdate() throws Exception { // should fail, or simply add some assertions
-        CollectionReference accounts = dbFirestore.collection("cruds").document("deneme").collection(BANK_ACCOUNTS);
-
-        DocumentReference ref = accounts.document("ads");
-
-        ref.update(Map.of("name", "new")).get().getUpdateTime();
-    }
-}
-
-@Data
-@AllArgsConstructor
-class Crud {
-    private String documentId;
-    private String name;
-    private String profession;
 }
